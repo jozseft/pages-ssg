@@ -1,1 +1,1 @@
-# pages-ssg
+# Pages (Static Site Generator)
