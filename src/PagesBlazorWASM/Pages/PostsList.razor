@@ -1,0 +1,42 @@
+﻿@page "/posts-list";
+@inject HttpClient Http
+@using PagesBlazorWASM
+@using PagesCommon.DTOs
+
+<h3>Posts List</h3>
+
+@if (postsList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in postsList)
+            {
+                <tr>
+                    <td>@post.Title</td>
+                    <td>
+                        <a target="_blank" href="@(GlobalConstants.BaseAPI + "/" + post.SourceName)">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private PostListItemDTO[]? postsList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        postsList = await Http.GetFromJsonAsync<PostListItemDTO[]>(GlobalConstants.BaseAPI + "/api/post");
+    }
+}

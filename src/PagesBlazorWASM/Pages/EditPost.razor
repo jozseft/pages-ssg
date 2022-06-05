@@ -1,0 +1,25 @@
+﻿@using PagesCommon.DTOs
+@using PagesBlazorWASM.Components
+@page "/edit-post";
+@inject HttpClient Http;
+
+<h3>Edit Post</h3>
+<EditForm Model="postForm" OnValidSubmit="SavePost">
+    <DataAnnotationsValidator />
+
+    <InputText @bind-Value="postForm.Title"></InputText>
+    <ValidationMessage For="@(() => postForm.Title)" />
+
+    <InputMarkdown @bind-Value="postForm.MarkdownText" ValidationFor="@(() => postForm.MarkdownText)" />
+
+    <button type="submit">Save</button>
+</EditForm>
+
+@code {
+    PostDTO postForm = new PostDTO();
+
+    protected async Task SavePost()
+    {
+        await Http.PostAsJsonAsync<PostDTO>(GlobalConstants.BaseAPI + "/api/post", postForm);
+    }
+}

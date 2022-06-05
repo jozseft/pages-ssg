@@ -1,0 +1,47 @@
+﻿@using System.Linq.Expressions
+@using PagesCommon.Interfaces
+
+@inherits InputBase<string>
+@inject IPostProcessor postProcessor;
+
+@if (!string.IsNullOrWhiteSpace(Label))
+{
+    <label class="form-control-label" for="@Id">@Label</label>
+}
+else
+{
+    <label class="form-control-label" for="@Id">Write your post</label>
+}
+
+<textarea class="form-control @CssClass" id="@Id" @bind="@CurrentValue" @bind:event="oninput" @onkeyup="renderMD" rows="15" cols="80" />
+<div class="form-control-validation">
+    <ValidationMessage For="@ValidationFor" />
+</div>
+
+@if (mdResult != null)
+{
+    @((MarkupString)mdResult)
+}
+
+@code {
+    [Parameter, EditorRequired] public Expression<Func<string>> ValidationFor { get; set; } = default!;
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Label { get; set; }
+
+    private string? mdResult;
+
+    protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
+    {
+        result = value;
+        validationErrorMessage = null;
+        return true;
+    }
+
+    private void renderMD()
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentValue))
+        {
+            mdResult = postProcessor.GetHtmlByMarkdown(CurrentValue);
+        }
+    }
+}

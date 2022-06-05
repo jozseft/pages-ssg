@@ -2,4 +2,16 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/src/PagesAPI/bin/Debug/net6.0
+/src/PagesAPI/bin
+/src/PagesAPI/.vs
+/src/PagesAPI/obj
+/src/PagesBlazorWASM/bin
+/src/PagesBlazorWASM/obj
+/src/PagesCommon/bin
+/src/PagesCommon/obj
+/src/PagesConfig/bin
+/src/PagesConfig/obj
+/src/PagesData/bin
+/src/PagesData/obj
+/src/PagesServices/bin
+/src/PagesServices/obj
