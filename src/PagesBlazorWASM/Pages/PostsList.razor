@@ -2,15 +2,18 @@
 @inject HttpClient Http
 @using PagesBlazorWASM
 @using PagesCommon.DTOs
+@using PagesCommon.Enums
 
 <h3>Posts List</h3>
 
-@if (postsList == null)
+@if (!pageLoaded)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    <div>Unpublished posts</div>
+
     <table class="table">
         <thead>
             <tr>
@@ -19,7 +22,29 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var post in postsList)
+            @foreach (var post in unpublishedPosts)
+            {
+                <tr>
+                    <td>@post.Title</td>
+                    <td>
+                        <a href="@("edit-post/" + post.Id)">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>Published posts</div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in publishedPosts)
             {
                 <tr>
                     <td>@post.Title</td>
@@ -33,10 +58,19 @@ else
 }
 
 @code {
-    private PostListItemDTO[]? postsList;
+    private bool pageLoaded = false;
+    private PostListItemDTO[]? unpublishedPosts;
+    private PostListItemDTO[]? publishedPosts;
 
     protected override async Task OnInitializedAsync()
     {
-        postsList = await Http.GetFromJsonAsync<PostListItemDTO[]>(GlobalConstants.BaseAPI + "/api/post");
+        PostListItemDTO[] postsList = await Http.GetFromJsonAsync<PostListItemDTO[]>(GlobalConstants.BaseAPI + "/api/post");
+        pageLoaded = true;
+
+        if (postsList.Length > 0) 
+        {
+            unpublishedPosts = postsList.Where(p => p.Status == PostStatus.Writing).ToArray();
+            publishedPosts = postsList.Where(p => p.Status == PostStatus.Published).ToArray();
+        }
     }
 }

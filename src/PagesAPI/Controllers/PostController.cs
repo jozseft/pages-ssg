@@ -26,16 +26,23 @@ namespace PagesAPI.Controllers
 
         // GET api/<PostController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public PostDTO Get(Guid id)
         {
-            return "value";
+            return _postService.GetPost(id); 
         }
 
         // POST api/<PostController>
         [HttpPost]
-        public void Post([FromBody] PostDTO value)
+        public Guid Post([FromBody] PostDTO value)
         {
-            _postService.SavePost(value);
+            return _postService.SavePost(value);
+        }
+
+        // POST api/<PostController>
+        [HttpPost("Publish/{id}")]
+        public bool PublishPost([FromRoute] Guid id)
+        {
+            return _postService.PublishPost(id);
         }
 
         // PUT api/<PostController>/5

@@ -6,6 +6,7 @@ using PagesData.Entities;
 using PagesData.Interfaces;
 using PagesServices.Interfaces;
 using PagesCommon.Enums;
+using System.IO;
 
 namespace PagesServices.Services
 {
@@ -22,35 +23,52 @@ namespace PagesServices.Services
             _postRepository = postRepository;
         }
 
-        public void SavePost(PostDTO newPost)
+        public Guid SavePost(PostDTO newPost)
         {
             string sourceName = newPost.Title.ToLower().Replace(" ", "-");
+
             WriteFile(_filesConfig.Value.MarkdownFilesPath + $"{sourceName}.md", newPost.MarkdownText);
 
-            var post = new Post 
-            { 
-                Id = newPost.Id ?? Guid.NewGuid(),
-                Title = newPost.Title,
-                SourceName = sourceName,
-                Status = PostStatus.Writing
-            };
+            if (newPost.Id.HasValue)
+            {
+                Post post = _postRepository.GetPost(newPost.Id.Value);
 
-            _postRepository.SavePost(post);
+                if (post != null && post.SourceName != sourceName)
+                {
+                    File.Delete(_filesConfig.Value.MarkdownFilesPath + $"{post.SourceName}.md");
 
-            if (!Directory.Exists(_filesConfig.Value.HTMLPagesPath + sourceName))
-                Directory.CreateDirectory(_filesConfig.Value.HTMLPagesPath + sourceName);
+                    post.Title = newPost.Title;
+                    post.SourceName = sourceName;
 
-            string htmlPath = _filesConfig.Value.HTMLPagesPath + $"{sourceName}\\index.html";
-            WriteFile(htmlPath, putHtmlBaseTags(newPost.Title, _postProcessor.GetHtmlByMarkdown(newPost.MarkdownText)));
+                    _postRepository.UpdatePostTitleAndSourceName(post);
+                }
+            }
+            else
+            {
+                var post = new Post
+                {
+                    Id = newPost.Id ?? Guid.NewGuid(),
+                    Title = newPost.Title,
+                    SourceName = sourceName,
+                    Status = PostStatus.Writing
+                };
+
+                _postRepository.SavePost(post);
+
+                newPost.Id = post.Id;
+            }
+
+            return newPost.Id.Value;
         }
 
-        public IEnumerable<PostListItemDTO> GetAllPosts() 
+        public IEnumerable<PostListItemDTO> GetAllPosts()
         {
             return _postRepository.GetAllPosts().Select(p => new PostListItemDTO
             {
                 Id = p.Id,
                 Title = p.Title,
-                SourceName = p.SourceName
+                SourceName = p.SourceName,
+                Status = p.Status
             }).AsEnumerable();
         }
 
@@ -62,6 +80,46 @@ namespace PagesServices.Services
 
                 sw.Close();
             }
+        }
+
+        public PostDTO GetPost(Guid id)
+        {
+            Post post = _postRepository.GetPost(id);
+
+            if (post != null)
+            {
+                return new PostDTO
+                {
+                    Title = post.Title,
+                    Id = id,
+                    SourceName = post.SourceName,
+                    MarkdownText = File.ReadAllText(_filesConfig.Value.MarkdownFilesPath + $"{post.SourceName}.md")
+                };
+            };
+
+            return null;
+        }
+
+        public bool PublishPost(Guid id)
+        {
+            Post post = _postRepository.GetPost(id);
+
+            if (post != null)
+            {
+                string markdownText = File.ReadAllText(_filesConfig.Value.MarkdownFilesPath + $"{post.SourceName}.md");
+
+                if (!Directory.Exists(_filesConfig.Value.HTMLPagesPath + post.SourceName))
+                    Directory.CreateDirectory(_filesConfig.Value.HTMLPagesPath + post.SourceName);
+
+                string htmlPath = _filesConfig.Value.HTMLPagesPath + $"{post.SourceName}\\index.html";
+                WriteFile(htmlPath, putHtmlBaseTags(post.Title, _postProcessor.GetHtmlByMarkdown(markdownText)));
+
+                _postRepository.UpdatePostStatus(id, PostStatus.Published);
+
+                return true;
+            };
+
+            return false;
         }
 
         private string putHtmlBaseTags(string title, string content)

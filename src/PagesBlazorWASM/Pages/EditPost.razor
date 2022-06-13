@@ -1,10 +1,17 @@
 ﻿@using PagesCommon.DTOs
 @using PagesBlazorWASM.Components
-@page "/edit-post";
-@inject HttpClient Http;
+@page "/edit-post"
+@page "/edit-post/{id:guid}"
+@inject HttpClient Http
 
 <h3>Edit Post</h3>
-<EditForm Model="postForm" OnValidSubmit="SavePost">
+
+@if (Id != Guid.Empty)
+{ 
+    <button type="button" @onclick="PublishPost">Publish</button>
+}
+
+<EditForm Model="@postForm" OnValidSubmit="@SavePost">
     <DataAnnotationsValidator />
 
     <InputText @bind-Value="postForm.Title"></InputText>
@@ -16,10 +23,33 @@
 </EditForm>
 
 @code {
-    PostDTO postForm = new PostDTO();
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private PostDTO postForm = new PostDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            postForm = await Http.GetFromJsonAsync<PostDTO>(GlobalConstants.BaseAPI + "/api/post/" + Id);
+        }
+    }
 
     protected async Task SavePost()
     {
-        await Http.PostAsJsonAsync<PostDTO>(GlobalConstants.BaseAPI + "/api/post", postForm);
+        var response = await Http.PostAsJsonAsync<PostDTO>(GlobalConstants.BaseAPI + "/api/post", postForm);
+        Id = await response.Content.ReadFromJsonAsync<Guid>();
+    }
+
+    protected async Task PublishPost()
+    {
+        var response = await Http.PostAsync(GlobalConstants.BaseAPI + "/api/post/publish/" + Id, null);
+        bool isPublished = await response.Content.ReadFromJsonAsync<bool>();
+
+        if (isPublished)
+        {
+            // show a popup or redirect to the page
+        }
     }
 }

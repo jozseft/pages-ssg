@@ -1,4 +1,6 @@
-﻿namespace PagesCommon.DTOs
+﻿using PagesCommon.Enums;
+
+namespace PagesCommon.DTOs
 {
     public class PostListItemDTO
     {
@@ -7,5 +9,7 @@
         public string Title { get; set; }
 
         public string SourceName { get; set; }
+
+        public PostStatus Status { get; set; }
     }
 }

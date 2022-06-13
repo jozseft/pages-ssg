@@ -11,5 +11,7 @@ namespace PagesCommon.DTOs
 
         [Required]
         public string MarkdownText { get; set; }
+
+        public string? SourceName { get; set; }
     }
 }

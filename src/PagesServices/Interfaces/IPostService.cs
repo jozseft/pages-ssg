@@ -4,8 +4,12 @@ namespace PagesServices.Interfaces
 {
     public interface IPostService
     {
-        void SavePost(PostDTO content);
+        Guid SavePost(PostDTO content);
 
         IEnumerable<PostListItemDTO> GetAllPosts();
+
+        PostDTO GetPost(Guid id);
+
+        bool PublishPost(Guid id);
     }
 }
