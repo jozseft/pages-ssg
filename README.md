@@ -1,1 +1,1 @@
-# Pages (Static Site Generator)
+# Pages - Static Site Generator
