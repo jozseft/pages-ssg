@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<FilesConfig>(builder.Configuration.GetSection("FilesPath"));
 
-var x = builder.Services.AddDbContext<PagesContext>(
+builder.Services.AddDbContext<PagesContext>(
        options => options.UseSqlServer(builder.Configuration.GetSection("Database")["ConnectionString"]));
 
 builder.Services.AddScoped<IPostProcessor, PostProcessor>();
