@@ -114,7 +114,10 @@ namespace PagesServices.Services
                 string htmlPath = _filesConfig.Value.HTMLPagesPath + $"{post.SourceName}\\index.html";
                 WriteFile(htmlPath, putHtmlBaseTags(post.Title, _postProcessor.GetHtmlByMarkdown(markdownText)));
 
-                _postRepository.UpdatePostStatus(id, PostStatus.Published);
+                post.Status = PostStatus.Published;
+                post.PublishedDate = DateTime.UtcNow;
+
+                _postRepository.UpdatePost(post);
 
                 return true;
             };
