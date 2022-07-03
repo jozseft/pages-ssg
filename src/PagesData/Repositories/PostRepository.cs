@@ -43,13 +43,17 @@ namespace PagesData.Repositories
             }
         }
 
-        public void UpdatePostStatus(Guid id, PostStatus status)
+        public void UpdatePost(Post post)
         {
-            Post dbPost = _context.Posts.FirstOrDefault(p => p.Id == id);
+            Post dbPost = _context.Posts.FirstOrDefault(p => p.Id == post.Id);
 
             if (dbPost != null)
             {
-                dbPost.Status = status;
+                dbPost.Title = post.Title;
+                dbPost.SourceName = post.SourceName;
+                dbPost.Status = post.Status;
+                dbPost.PublishedDate = post.PublishedDate;
+                dbPost.UpdatedDate = post.UpdatedDate;
 
                 _context.SaveChanges();
             }
