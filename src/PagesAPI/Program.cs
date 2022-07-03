@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<FilesConfig>(builder.Configuration.GetSection("FilesPath"));
 
-builder.Services.AddDbContext<PagesContext>(
+var x = builder.Services.AddDbContext<PagesContext>(
        options => options.UseSqlServer(builder.Configuration.GetSection("Database")["ConnectionString"]));
 
 builder.Services.AddScoped<IPostProcessor, PostProcessor>();
@@ -40,6 +40,14 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PagesContext>();
+    DataSeeder seeder = new DataSeeder(dbContext);
+
+    seeder.Seed();
+}
 
 //// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
