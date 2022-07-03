@@ -13,6 +13,6 @@ namespace PagesData.Interfaces
 
         void UpdatePostTitleAndSourceName(Post post);
 
-        void UpdatePostStatus(Guid id, PostStatus status);
+        void UpdatePost(Post post);
     }
 }
