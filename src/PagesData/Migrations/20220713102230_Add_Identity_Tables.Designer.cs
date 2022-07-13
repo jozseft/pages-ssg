@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PagesData.Context;
 
@@ -11,9 +12,10 @@ using PagesData.Context;
 namespace PagesData.Migrations
 {
     [DbContext(typeof(PagesContext))]
-    partial class PagesContextModelSnapshot : ModelSnapshot
+    [Migration("20220713102230_Add_Identity_Tables")]
+    partial class Add_Identity_Tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

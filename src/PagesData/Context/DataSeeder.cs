@@ -1,9 +1,4 @@
 ﻿using PagesData.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PagesData.Context
 {
@@ -18,6 +13,8 @@ namespace PagesData.Context
 
         public void Seed() 
         {
+            _context.Database.EnsureCreated();
+
             SeedFirstPost();
         }
 
