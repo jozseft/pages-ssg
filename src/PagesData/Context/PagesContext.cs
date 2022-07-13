@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PagesData.Entities;
 
 namespace PagesData.Context
 {
-    public class PagesContext : DbContext
+    public class PagesContext : IdentityDbContext<User, Role, Guid>
     {
         public DbSet<Post> Posts { get; set; }
 
@@ -17,7 +18,10 @@ namespace PagesData.Context
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Post>(entity => {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Post>(entity =>
+            {
                 entity.HasIndex(e => e.SourceName).IsUnique();
             });
         }
