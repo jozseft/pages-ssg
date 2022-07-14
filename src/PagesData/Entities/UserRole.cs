@@ -2,7 +2,7 @@
 
 namespace PagesData.Entities
 {
-    public class Role : IdentityRole<Guid>
+    public class UserRole : IdentityRole<Guid>
     {
         
     }
