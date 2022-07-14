@@ -4,7 +4,7 @@ using PagesData.Entities;
 
 namespace PagesData.Context
 {
-    public class PagesContext : IdentityDbContext<User, Role, Guid>
+    public class PagesContext : IdentityDbContext<User, UserRole, Guid>
     {
         public DbSet<Post> Posts { get; set; }
 
