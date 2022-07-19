@@ -53,7 +53,7 @@ namespace PagesData.Context
                 string password = "Admin#45";
                 User newUser = new User
                 {
-                    UserName = "Administrator",
+                    UserName = "administrator",
                     Email = email,
                     EmailConfirmed = true,
                     FirstName = "AdminFirstName",

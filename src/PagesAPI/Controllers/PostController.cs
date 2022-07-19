@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PagesCommon.DTOs;
 using PagesServices.Interfaces;
 
@@ -6,6 +7,7 @@ using PagesServices.Interfaces;
 
 namespace PagesAPI.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("api/[controller]")]
     [ApiController]
     public class PostController : ControllerBase

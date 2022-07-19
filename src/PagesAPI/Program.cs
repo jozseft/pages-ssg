@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PagesCommon.Interfaces;
 using PagesCommon.Services;
 using PagesConfig;
@@ -9,6 +11,7 @@ using PagesData.Interfaces;
 using PagesData.Repositories;
 using PagesServices.Interfaces;
 using PagesServices.Services;
+using System.Text;
 
 var _allowedCors = "allowedCors";
 
@@ -34,6 +37,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<FilesConfig>(builder.Configuration.GetSection("FilesPath"));
 
+IConfigurationSection secretKeys = builder.Configuration.GetSection("SecretKeys");
+builder.Services.Configure<SecretKeys>(secretKeys);
+
 builder.Services.AddDbContext<PagesContext>(
        options => options.UseSqlServer(builder.Configuration.GetSection("Database")["ConnectionString"]));
 
@@ -54,9 +60,28 @@ builder.Services.AddIdentity<User, UserRole>(options =>
         .AddEntityFrameworkStores<PagesContext>()
         .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IPostProcessor, PostProcessor>();
-builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKeys["Auth"])),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero,      
+                    };
+                });
+
+// Repository
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+
+// Services
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+// Common
+builder.Services.AddScoped<IPostProcessor, PostProcessor>();
 
 var app = builder.Build();
 
@@ -70,13 +95,14 @@ using (var scope = app.Services.CreateScope())
     await seeder.Seed();
 }
 
-//// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseCors(_allowedCors);
 app.UseHttpsRedirection();
 
 var options = new DefaultFilesOptions();
@@ -86,9 +112,8 @@ app.UseDefaultFiles(options);
 
 app.UseStaticFiles();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseCors(_allowedCors);
 
 app.MapControllers();
 
